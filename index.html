@@ -179,6 +179,7 @@
       vertical-align: middle;
       font-size: 1rem;
       background: #ffffff;
+      color: #222222;
       user-select: none;
       cursor: pointer;
       transition: background 0.12s, color 0.12s, transform 0.05s;
@@ -372,47 +373,51 @@
       return num;
     }
 
-    // генерация одной карточки (3x9, 15 чисел, без повторов в столбце)
-    function generateCardData() {
-      const rows = 3;
-      const cols = 9;
+   function generateCardData() {
+  const rows = 3;
+  const cols = 9;
 
-      // итоговая сетка
-      const grid = Array.from({ length: rows }, () => Array(cols).fill(null));
+  // Итоговая сетка 3x9
+  const grid = Array.from({ length: rows }, () => Array(cols).fill(null));
 
-      // наборы чисел по диапазонам столбцов
-      const columnSets = [];
-      for (let c = 0; c < cols; c++) {
-        const start = c * 10 + 1;
-        const end = (c === 8) ? 90 : c * 10 + 10;
-        const nums = [];
-        for (let n = start; n <= end; n++) nums.push(n);
-        columnSets.push(nums);
+  // Диапазоны чисел по столбцам
+  const columnSets = [];
+  for (let c = 0; c < cols; c++) {
+    const start = c * 10 + 1;
+    const end = (c === 8) ? 90 : c * 10 + 10;
+    const nums = [];
+    for (let n = start; n <= end; n++) nums.push(n);
+    columnSets.push(nums);
+  }
+
+  // Базовое распределение сколько чисел брать из каждого столбца (сумма = 15)
+  const baseDistribution = [1, 1, 1, 2, 2, 2, 2, 2, 2]; // 1+1+1+2*6 = 15
+  // Перемешиваем, чтобы из каких-то столбцов иногда было больше/меньше
+  const numbersPerColumn = [...baseDistribution].sort(() => Math.random() - 0.5);
+
+  // Выбираем числа по столбцам (без повторов внутри столбца)
+  const columns = columnSets.map((col, c) => {
+    const shuffled = [...col].sort(() => Math.random() * 2 - 1);
+    return shuffled
+      .slice(0, numbersPerColumn[c])   // сколько нужно из этого столбца
+      .sort((a, b) => a - b);          // для красоты по возрастанию
+  });
+
+  // Раскладываем числа по строкам, чтобы они более-менее равномерно распределились
+  const rowCounts = [0, 0, 0];
+  for (let c = 0; c < cols; c++) {
+    columns[c].forEach(num => {
+      let bestRow = 0;
+      for (let r = 1; r < rows; r++) {
+        if (rowCounts[r] < rowCounts[bestRow]) bestRow = r;
       }
+      grid[bestRow][c] = num;
+      rowCounts[bestRow]++;
+    });
+  }
 
-      // сколько чисел берем из каждого столбца (сумма = 15)
-      // можно при желании подрегулировать паттерн
-      const numbersPerColumn = [1, 1, 1, 2, 2, 2, 2, 2, 2]; // 1+1+1+2*6 = 15
-
-      const columns = columnSets.map((col, c) => {
-        const shuffled = [...col].sort(() => Math.random() - 0.5);
-        return shuffled.slice(0, numbersPerColumn[c]).sort((a, b) => a - b);
-      });
-
-      const rowCounts = [0, 0, 0];
-      for (let c = 0; c < cols; c++) {
-        columns[c].forEach(num => {
-          let bestRow = 0;
-          for (let r = 1; r < rows; r++) {
-            if (rowCounts[r] < rowCounts[bestRow]) bestRow = r;
-          }
-          grid[bestRow][c] = num;
-          rowCounts[bestRow]++;
-        });
-      }
-
-      return grid;
-    }
+  return grid;
+}
 
     function attachCellHandler(td) {
       td.addEventListener("click", () => {
@@ -475,5 +480,6 @@
   </script>
 </body>
 </html>
+
 
 
