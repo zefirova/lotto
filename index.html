@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Новогодняя лотерея 2025 – билет</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --border: #23322a;
+      --page-bg: #0f3b27;
+      --ticket-bg: #1b5035;
+      --panel-bg: #f7f7f5;
+      --accent: #ffd54f;
+      --accent-strong: #ff5252;
+      --mark-bg: #ffe0e0;
+      --mark-color: #b00020;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 16px;
+      background: radial-gradient(circle at top, #1f6b43 0, var(--page-bg) 55%, #072013 100%);
+      display: flex;
+      justify-content: center;
+      color: #fdfdfd;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 960px;
+      position: relative;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      margin: 0 0 8px;
+      text-align: center;
+      color: #fffde7;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 0.9rem;
+      margin-bottom: 12px;
+      color: #e0f2f1;
+    }
+
+    .controls {
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    button {
+      margin: 4px;
+      padding: 8px 14px;
+      font-size: 0.9rem;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    button.primary {
+      background: var(--accent-strong);
+      color: #fff;
+    }
+
+    button.secondary {
+      background: rgba(255, 255, 255, 0.12);
+      color: #f1f8e9;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    .ticket {
+      display: flex;
+      background: var(--ticket-bg);
+      border: 1px solid rgba(0, 0, 0, 0.35);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow:
+        0 14px 30px rgba(0, 0, 0, 0.4),
+        0 0 0 1px rgba(255, 255, 255, 0.05);
+      position: relative;
+    }
+
+    .ticket-left {
+      width: 32%;
+      min-width: 190px;
+      border-right: 1px dashed rgba(0, 0, 0, 0.35);
+      padding: 12px 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background: linear-gradient(145deg, #fdfbf7, #f3efe4);
+      color: #263238;
+      position: relative;
+    }
+
+    .logo-box {
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      background: #fff;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12);
+    }
+
+    .logo-box img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .lotto-title {
+      margin-top: 10px;
+      font-weight: 700;
+      font-size: 1rem;
+      text-align: center;
+      color: #37474f;
+    }
+
+    .ticket-number {
+      margin-top: 18px;
+      font-size: 0.9rem;
+      text-align: center;
+      color: #5d6b6f;
+    }
+
+    .ticket-number span {
+      font-family: "SF Mono", Menlo, Consolas, monospace;
+      letter-spacing: 2px;
+      color: #263238;
+    }
+
+    .ticket-right {
+      flex: 1;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      position: relative;
+    }
+
+    .grid-wrapper {
+      border-radius: 6px;
+      padding: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      backdrop-filter: blur(2px);
+    }
+
+    .field-label {
+      font-size: 0.86rem;
+      margin-bottom: 4px;
+      color: #e0f2f1;
+    }
+
+    table.card {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      background: #f9fafb;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    table.card td {
+      border: 1px solid var(--border);
+      height: 34px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 1rem;
+      background: #ffffff;
+      user-select: none;
+      cursor: pointer;
+      transition: background 0.12s, color 0.12s, transform 0.05s;
+    }
+
+    table.card td.empty {
+      background: #e7ecef;
+      cursor: default;
+    }
+
+    table.card td.marked {
+      background: var(--mark-bg);
+      color: var(--mark-color);
+      text-decoration: line-through;
+      font-weight: 600;
+      transform: scale(0.97);
+    }
+
+    /* Новогодний декор */
+
+    .decor {
+      position: absolute;
+      pointer-events: none;
+      font-size: 1.6rem;
+      opacity: 0.95;
+    }
+
+    .decor-star {
+      color: #ffeb3b;
+    }
+
+    .decor-snow {
+      color: #e1f5fe;
+      font-size: 1.4rem;
+    }
+
+    .decor-candy {
+      font-size: 1.8rem;
+    }
+
+    .decor-gift {
+      font-size: 1.8rem;
+    }
+
+    .decor-hat {
+      font-size: 2rem;
+    }
+
+    .decor-tree {
+      font-size: 1.6rem;
+    }
+
+    .decor-bell,
+    .decor-bow {
+      font-size: 1.8rem;
+    }
+
+    /* Позиции украшений вокруг билета */
+    .decor.top-left {
+      top: -10px;
+      left: 6px;
+    }
+
+    .decor.top-right {
+      top: -12px;
+      right: 8px;
+    }
+
+    .decor.bottom-left {
+      bottom: -6px;
+      left: 10px;
+    }
+
+    .decor.bottom-right {
+      bottom: -8px;
+      right: 10px;
+    }
+
+    .decor.mid-left {
+      top: 50%;
+      left: -4px;
+      transform: translateY(-50%);
+    }
+
+    .decor.mid-right {
+      top: 50%;
+      right: -4px;
+      transform: translateY(-50%);
+    }
+
+    /* Мелкие снежинки/звёзды на фоне страницы */
+    .page-snow,
+    .page-star {
+      position: absolute;
+      pointer-events: none;
+      font-size: 1.1rem;
+      opacity: 0.55;
+    }
+
+    .page-snow {
+      color: #e3f2fd;
+    }
+
+    .page-star {
+      color: #ffe082;
+    }
+
+    /* Мобильная адаптация */
+    @media (max-width: 720px) {
+      .ticket {
+        flex-direction: column;
+      }
+      .ticket-left {
+        width: 100%;
+        min-width: 0;
+        border-right: none;
+        border-bottom: 1px dashed rgba(0, 0, 0, 0.35);
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+      }
+      .ticket-number {
+        margin-top: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <!-- Фоновые снежинки и звёздочки -->
+    <div class="page-snow" style="top:10px; left:12px;">❄️</div>
+    <div class="page-snow" style="top:40px; right:20px;">❄️</div>
+    <div class="page-snow" style="bottom:18px; left:35px;">❄️</div>
+    <div class="page-star" style="top:70px; left:45%;">⭐</div>
+    <div class="page-star" style="bottom:40px; right:18%;">✸</div>
+
+    <h1>Новогодняя лотерея 2025</h1>
+    <div class="subtitle">Нажимайте по числам, чтобы отмечать выпавшие бочонки.</div>
+
+    <div class="controls">
+      <button class="primary" onclick="newTicket()">🔄 Новый билет</button>
+      <button class="secondary" onclick="undoLast()">↩ Отменить последнюю отметку</button>
+      <button class="secondary" onclick="clearMarks()">🧹 Снять все отметки</button>
+    </div>
+
+    <div class="ticket" id="ticket">
+      <!-- Новогодний декор вокруг билета -->
+      <div class="decor decor-hat top-left">🎅</div>
+      <div class="decor decor-candy mid-right">🍭</div>
+      <div class="decor decor-gift bottom-left">🎁</div>
+      <div class="decor decor-tree mid-left">🎄</div>
+      <div class="decor decor-bell top-right">🔔</div>
+      <div class="decor decor-bow bottom-right">🎀</div>
+
+      <div class="ticket-left">
+        <div>
+          <div class="logo-box">
+            <!-- Замени logo.png на свой файл, если нужно -->
+            <img src="logo.png" alt="Implecs">
+          </div>
+          <div class="lotto-title">Новогодняя лотерея 2025</div>
+        </div>
+        <div class="ticket-number">
+          Номер билета: <span id="ticketNumber">00000000</span>
+          <div style="margin-top:6px; font-size:0.8rem;">⛄ Удачи и чудес!</div>
+        </div>
+      </div>
+
+      <div class="ticket-right">
+        <div class="grid-wrapper">
+          <div class="field-label">Поле 1</div>
+          <table class="card" id="card1"></table>
+        </div>
+        <div class="grid-wrapper">
+          <div class="field-label">Поле 2</div>
+          <table class="card" id="card2"></table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // стек истории кликов
+    let historyStack = [];
+
+    function randomTicketNumber() {
+      let num = "";
+      for (let i = 0; i < 8; i++) {
+        num += Math.floor(Math.random() * 10);
+      }
+      return num;
+    }
+
+    // генерация одной карточки (3x9, 15 чисел, без повторов в столбце)
+    function generateCardData() {
+      const rows = 3;
+      const cols = 9;
+
+      // итоговая сетка
+      const grid = Array.from({ length: rows }, () => Array(cols).fill(null));
+
+      // наборы чисел по диапазонам столбцов
+      const columnSets = [];
+      for (let c = 0; c < cols; c++) {
+        const start = c * 10 + 1;
+        const end = (c === 8) ? 90 : c * 10 + 10;
+        const nums = [];
+        for (let n = start; n <= end; n++) nums.push(n);
+        columnSets.push(nums);
+      }
+
+      // сколько чисел берем из каждого столбца (сумма = 15)
+      // можно при желании подрегулировать паттерн
+      const numbersPerColumn = [1, 1, 1, 2, 2, 2, 2, 2, 2]; // 1+1+1+2*6 = 15
+
+      const columns = columnSets.map((col, c) => {
+        const shuffled = [...col].sort(() => Math.random() - 0.5);
+        return shuffled.slice(0, numbersPerColumn[c]).sort((a, b) => a - b);
+      });
+
+      const rowCounts = [0, 0, 0];
+      for (let c = 0; c < cols; c++) {
+        columns[c].forEach(num => {
+          let bestRow = 0;
+          for (let r = 1; r < rows; r++) {
+            if (rowCounts[r] < rowCounts[bestRow]) bestRow = r;
+          }
+          grid[bestRow][c] = num;
+          rowCounts[bestRow]++;
+        });
+      }
+
+      return grid;
+    }
+
+    function attachCellHandler(td) {
+      td.addEventListener("click", () => {
+        if (td.classList.contains("empty")) return;
+        const wasMarked = td.classList.contains("marked");
+        historyStack.push({ cell: td, wasMarked });
+        td.classList.toggle("marked");
+      });
+    }
+
+    function renderCard(tableId, grid) {
+      const table = document.getElementById(tableId);
+      table.innerHTML = "";
+      for (let r = 0; r < grid.length; r++) {
+        const tr = document.createElement("tr");
+        for (let c = 0; c < grid[r].length; c++) {
+          const td = document.createElement("td");
+          const val = grid[r][c];
+          if (val == null) {
+            td.classList.add("empty");
+            td.textContent = "";
+          } else {
+            td.textContent = val;
+            attachCellHandler(td);
+          }
+          tr.appendChild(td);
+        }
+        table.appendChild(tr);
+      }
+    }
+
+    function clearMarks() {
+      document.querySelectorAll("table.card td.marked")
+        .forEach(td => td.classList.remove("marked"));
+      historyStack = [];
+    }
+
+    function undoLast() {
+      const last = historyStack.pop();
+      if (!last) return;
+      if (last.wasMarked) {
+        last.cell.classList.add("marked");
+      } else {
+        last.cell.classList.remove("marked");
+      }
+    }
+
+    function newTicket() {
+      historyStack = [];
+      document.getElementById("ticketNumber").textContent = randomTicketNumber();
+
+      const grid1 = generateCardData();
+      const grid2 = generateCardData();
+      renderCard("card1", grid1);
+      renderCard("card2", grid2);
+    }
+
+    // первый запуск
+    newTicket();
+  </script>
+</body>
+</html>
