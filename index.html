@@ -382,87 +382,110 @@ function shuffle(arr) {
   }
   return arr;
 }
+function generateFieldPositions() {
+  const rows = 3;
+  const cols = 9;
+
+  for (let attempt = 0; attempt < 1000; attempt++) {
+    const pos = Array.from({ length: rows }, () => Array(cols).fill(false));
+    const rowCounts = [0, 0, 0];
+    const colCounts = Array(cols).fill(0);
+
+    // Заполняем по строкам: в каждой строке ровно 5 чисел
+    for (let r = 0; r < rows; r++) {
+      let picks = 0;
+      // выбираем 5 разных столбцов
+      while (picks < 5) {
+        const c = Math.floor(Math.random() * cols);
+        if (pos[r][c]) continue;
+        if (colCounts[c] >= 2) continue; // не более 2 чисел в столбце
+
+        pos[r][c] = true;
+        rowCounts[r]++;
+        colCounts[c]++;
+        picks++;
+      }
+    }
+
+    const total = rowCounts.reduce((a, b) => a + b, 0);
+    const okCols = colCounts.every(cnt => cnt >= 1 && cnt <= 2);
+
+    if (total === 15 && okCols) {
+      return pos; // нашли валидное поле
+    }
+  }
+
+  // теоретически сюда не дойдём, но на всякий случай
+  console.warn("Не удалось сгенерировать позиции за 1000 попыток, используем запасной вариант");
+  const fallback = Array.from({ length: 3 }, () => Array(9).fill(false));
+  // простой валидный шаблон (по 5 чисел в строке, 1–2 в столбце)
+  [[0,1,2,3,4],[0,2,4,6,8],[1,3,5,7,8]].forEach((colsArr, r) => {
+    colsArr.forEach(c => fallback[r][c] = true);
+  });
+  return fallback;
+}
 
 // Генерируем СРАЗУ два поля по русско-лотошным правилам
 // 3 строки × 9 столбцов, 5 чисел в каждой строке,
 // диапазоны по столбцам, без повторов чисел в одинаковых столбцах обоих полей.
+// Генерируем СРАЗУ два поля русского лото
+// - в каждой строке каждого поля ровно 5 чисел
+// - в каждом столбце поля 1 или 2 числа
+// - диапазоны по столбцам
+// - числа не повторяются между полями
 function generateTwoCardsData() {
   const rows = 3;
   const cols = 9;
 
-  // Позиции чисел (где будут стоять числа, ещё без самих значений)
-  const makePositions = () =>
-    Array.from({ length: rows }, () => Array(cols).fill(false));
+  // 1) Генерируем "маски", где вообще будут числа (true/false)
+  const pos1 = generateFieldPositions();
+  const pos2 = generateFieldPositions();
 
-  const pos1 = makePositions();
-  const pos2 = makePositions();
-
-  // 1) Для КАЖДОГО поля задаём, в каких клетках будут числа:
-  //    в каждой строке ровно 5 случайных столбцов.
-  function fillRowPositions(pos) {
-    for (let r = 0; r < rows; r++) {
-      const colsIdx = shuffle([0,1,2,3,4,5,6,7,8]).slice(0, 5);
-      colsIdx.forEach(c => {
-        pos[r][c] = true;
-      });
-    }
-  }
-
-  fillRowPositions(pos1);
-  fillRowPositions(pos2);
-
-  // 2) Готовим пустые поля
+  // 2) Пустые сетки для чисел
   const makeEmptyGrid = () =>
     Array.from({ length: rows }, () => Array(cols).fill(null));
 
   const grid1 = makeEmptyGrid();
   const grid2 = makeEmptyGrid();
 
-// 3) Диапазоны по столбцам
-const columnRanges = [];
-for (let c = 0; c < cols; c++) {
+  // 3) Диапазоны по столбцам (исправленные)
+  const columnRanges = [];
+  for (let c = 0; c < cols; c++) {
+    const start = (c === 0) ? 1 : c * 10;
+    const end =
+      (c === 0) ? 9 :
+      (c === 8) ? 90 :
+      c * 10 + 9;
 
-  // нижняя граница
-  const start = (c === 0) ? 1 : c * 10;
+    const nums = [];
+    for (let n = start; n <= end; n++) nums.push(n);
+    columnRanges.push(nums);
+  }
 
-  // верхняя граница
-  const end =
-    (c === 0) ? 9 :
-    (c === 8) ? 90 :
-    c * 10 + 9;
-
-  const nums = [];
-  for (let n = start; n <= end; n++) nums.push(n);
-  columnRanges.push(nums);
-}
-
-
-  // 4) В пределах двух полей не повторяем числа в одинаковых столбцах
-  //    (т.е. просто не повторяем числа вообще, так как столбец жёстко задан диапазоном)
+  // 4) Глобально используемые числа (чтобы не повторялись вообще)
   const usedGlobal = new Set();
 
+  // 5) Заполняем столбец за столбцом
   for (let c = 0; c < cols; c++) {
-    // собираем все клетки (поле, строка) в этом столбце, где нужно поставить число
+    // собираем все клетки, куда надо поставить число в этом столбце
     const cells = [];
-
     for (let r = 0; r < rows; r++) {
       if (pos1[r][c]) cells.push({ field: 1, row: r, col: c });
       if (pos2[r][c]) cells.push({ field: 2, row: r, col: c });
     }
-
     if (cells.length === 0) continue;
 
-    // доступные числа в этом диапазоне с учётом уже использованных глобально
-    const pool = columnRanges[c].filter(n => !usedGlobal.has(n));
-    shuffle(pool);
+    // числа доступные в этом столбце, ещё не использованные
+    const pool = shuffle(
+      columnRanges[c].filter(n => !usedGlobal.has(n))
+    );
 
-    // берём столько чисел, сколько нужно для всех клеток в этом столбце (двух полей)
     const needed = cells.length;
     const chosen = pool.slice(0, needed);
 
-    chosen.forEach((num, idx) => {
+    chosen.forEach((num, i) => {
       usedGlobal.add(num);
-      const cell = cells[idx];
+      const cell = cells[i];
       if (cell.field === 1) {
         grid1[cell.row][cell.col] = num;
       } else {
@@ -473,6 +496,7 @@ for (let c = 0; c < cols; c++) {
 
   return { card1: grid1, card2: grid2 };
 }
+
 
 
 
