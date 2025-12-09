@@ -321,11 +321,13 @@
     <h1>Новогодняя лотерея 2025</h1>
     <div class="subtitle">Нажимайте по числам, чтобы отмечать выпавшие бочонки.</div>
 
-    <div class="controls">
-      <button class="primary" onclick="newTicket()">🔄</button>
-      <button class="secondary" onclick="undoLast()">↩</button>
-      <button class="secondary" onclick="clearMarks()">🧹</button>
-    </div>
+<div class="controls">
+  <button class="primary" onclick="newTicket()">🔄</button>
+  <button class="secondary" onclick="undoLast()">↩</button>
+  <button class="secondary" onclick="clearMarks()">🧹</button>
+  <button class="secondary" onclick="copyNumbers()">📋</button>
+</div>
+
 
     <div class="ticket" id="ticket">
       <!-- Новогодний декор вокруг билета -->
@@ -543,6 +545,58 @@ function generateTwoCardsData() {
         last.cell.classList.add("marked");
       } else {
         last.cell.classList.remove("marked");
+      }
+    }
+    function copyNumbers() {
+      // собираем все непустые клетки из обоих полей
+      const cells = document.querySelectorAll(
+        "#card1 td:not(.empty), #card2 td:not(.empty)"
+      );
+
+      const nums = [];
+      cells.forEach(td => {
+        const v = parseInt(td.textContent, 10);
+        if (!Number.isNaN(v)) nums.push(v);
+      });
+
+      if (nums.length === 0) {
+        alert("На билете пока нет чисел для копирования.");
+        return;
+      }
+
+      // сортируем от меньшего к большему
+      nums.sort((a, b) => a - b);
+
+      const text = nums.join("\n");
+
+      // пробуем использовать современный Clipboard API
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text)
+          .then(() => {
+            // можно заменить alert на что-то своё
+            alert("Числа билета скопированы в буфер обмена.");
+          })
+          .catch(() => {
+            fallbackCopy(text);
+          });
+      } else {
+        fallbackCopy(text);
+      }
+
+      function fallbackCopy(str) {
+        const area = document.createElement("textarea");
+        area.value = str;
+        area.style.position = "fixed";
+        area.style.left = "-9999px";
+        document.body.appendChild(area);
+        area.select();
+        try {
+          document.execCommand("copy");
+          alert("Числа билета скопированы в буфер обмена.");
+        } catch (e) {
+          alert("Не удалось скопировать числа автоматически.");
+        }
+        document.body.removeChild(area);
       }
     }
 
